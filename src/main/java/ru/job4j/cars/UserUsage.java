@@ -6,17 +6,21 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import ru.job4j.cars.model.User;
 import ru.job4j.cars.repository.UserRepository;
 
+import java.util.logging.Level;
+
 public class UserUsage {
     public static void main(String[] args) {
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
                 .configure().build();
         try (SessionFactory sf = new MetadataSources(registry)
                 .buildMetadata().buildSessionFactory()) {
+            java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.WARNING);
             var userRepository = new UserRepository(sf);
             var user = new User();
             user.setLogin("admin");
             user.setPassword("admin");
             userRepository.create(user);
+            System.out.println(user);
             userRepository.findAllOrderById()
                     .forEach(System.out::println);
             userRepository.findByLikeLogin("e")
