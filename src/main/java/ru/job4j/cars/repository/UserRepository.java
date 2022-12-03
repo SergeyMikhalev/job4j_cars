@@ -81,7 +81,7 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        List<User> users = new ArrayList<>();
+        List<User> users;
         try (Session session = sf.openSession()) {
             try {
                 session.getTransaction().begin();
@@ -101,20 +101,20 @@ public class UserRepository {
      * @return пользователь.
      */
     public Optional<User> findById(int id) {
-        User user = null;
+        Optional<User> user;
         try (Session session = sf.openSession()) {
             try {
                 session.getTransaction().begin();
-                user = (User) session.createQuery("from User as u where u.id = :fId")
+                user = session.createQuery("from User as u where u.id = :fId")
                         .setParameter("fId", id)
-                        .uniqueResult();
+                        .uniqueResultOptional();
                 session.getTransaction().commit();
             } catch (final Exception e) {
                 session.getTransaction().rollback();
                 throw e;
             }
         }
-        return Optional.ofNullable(user);
+        return user;
     }
 
     /**
@@ -124,7 +124,7 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        List<User> users = new ArrayList<>();
+        List<User> users;
         try (
                 Session session = sf.openSession()) {
             try {
@@ -148,19 +148,19 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        User user = null;
+        Optional<User> user;
         try (Session session = sf.openSession()) {
             try {
                 session.getTransaction().begin();
-                user = (User) session.createQuery("from User as u where u.login = :fLogin")
+                user = session.createQuery("from User as u where u.login = :fLogin")
                         .setParameter("fLogin", login)
-                        .uniqueResult();
+                        .uniqueResultOptional();
                 session.getTransaction().commit();
             } catch (final Exception e) {
                 session.getTransaction().rollback();
                 throw e;
             }
         }
-        return Optional.ofNullable(user);
+        return user;
     }
 }
