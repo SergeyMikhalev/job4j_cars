@@ -1,9 +1,12 @@
-package ru.job4j.cars.repository;
+package ru.job4j.todo.repository;
 
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.stereotype.Component;
+import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
@@ -11,9 +14,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+
+@Repository
 @AllArgsConstructor
 public class CrudRepository {
     private final SessionFactory sf;
+    private final Logger logger = LoggerFactory.getLogger(CrudRepository.class);
 
     public void run(Consumer<Session> command) {
         tx(session -> {
@@ -33,6 +39,18 @@ public class CrudRepository {
             sq.executeUpdate();
         };
         run(command);
+    }
+
+    public int update(String query, Map<String, Object> args) {
+        Function<Session, Integer> command = session -> {
+            var sq = session
+                    .createQuery(query);
+            for (Map.Entry<String, Object> arg : args.entrySet()) {
+                sq.setParameter(arg.getKey(), arg.getValue());
+            }
+            return sq.executeUpdate();
+        };
+        return tx(command);
     }
 
     public <T> Optional<T> optional(String query, Class<T> cl, Map<String, Object> args) {
@@ -68,17 +86,20 @@ public class CrudRepository {
 
     public <T> T tx(Function<Session, T> command) {
         var session = sf.openSession();
-        try (session) {
-            var tx = session.beginTransaction();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
             T rsl = command.apply(session);
             tx.commit();
             return rsl;
         } catch (Exception e) {
-            var tx = session.getTransaction();
-            if (tx.isActive()) {
+            logger.error(e.toString());
+            if (tx != null) {
                 tx.rollback();
             }
             throw e;
+        } finally {
+            session.close();
         }
     }
 }

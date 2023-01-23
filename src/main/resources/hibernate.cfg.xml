@@ -17,6 +17,9 @@
         <mapping class="ru.job4j.cars.model.User" />
         <mapping class="ru.job4j.cars.model.Post" />
         <mapping class="ru.job4j.cars.model.PriceHistoryUnit" />
+        <mapping class="ru.job4j.cars.model.Engine" />
+        <mapping class="ru.job4j.cars.model.Driver" />
+        <mapping class="ru.job4j.cars.model.Car" />
     </session-factory>
 
 </hibernate-configuration>
