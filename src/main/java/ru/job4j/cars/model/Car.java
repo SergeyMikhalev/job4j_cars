@@ -23,5 +23,5 @@ public class Car {
             @JoinColumn(name = "car_id", nullable = false, updatable = false)},
             inverseJoinColumns = {
                     @JoinColumn(name = "driver_id", nullable = false, updatable = false)})
-    private Set<Driver> drivers = new HashSet<>();
+    private Set<Driver> owners = new HashSet<>();
 }
