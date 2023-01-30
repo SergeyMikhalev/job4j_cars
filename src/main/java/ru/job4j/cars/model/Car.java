@@ -24,4 +24,8 @@ public class Car {
             inverseJoinColumns = {
                     @JoinColumn(name = "driver_id", nullable = false, updatable = false)})
     private Set<Driver> owners = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "barnd_id")
+    private CarBrand brand;
 }
