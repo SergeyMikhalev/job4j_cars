@@ -41,7 +41,7 @@ public class CrudRepository {
         run(command);
     }
 
-    public int update(String query, Map<String, Object> args) {
+    public int executeUpdate(String query, Map<String, Object> args) {
         Function<Session, Integer> command = session -> {
             var sq = session
                     .createQuery(query);

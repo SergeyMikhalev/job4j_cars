@@ -3,6 +3,7 @@ package ru.job4j.cars.repository;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Engine;
 
+import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,6 +13,7 @@ public class EngineRepository {
     public static final String FIND_BY_ID = "from Engine e where e.id=:fId";
     public static final String FIND_ALL = "from Engine";
     public static final String DELETE_QUERY = "delete Engine e where e.id =:fId";
+    public static final String UPDATE_QUERY = "UPDATE Engine as e set e.name=:fName WHERE e.id=:fId";
 
     private final CrudRepository crudRepository;
 
@@ -20,14 +22,20 @@ public class EngineRepository {
     }
 
     public Optional<Engine> findById(int id) {
-        return crudRepository.optional(
-                FIND_BY_ID,
-                Engine.class,
-                Map.of("fId", id)
-        );
+        Optional<Engine> result;
+        try {
+            result = crudRepository.optional(
+                    FIND_BY_ID,
+                    Engine.class,
+                    Map.of("fId", id)
+            );
+        } catch (NoResultException e) {
+            result = Optional.empty();
+        }
+        return result;
     }
 
-    public List<Engine> findAll(int id) {
+    public List<Engine> findAll() {
         return crudRepository.query(FIND_ALL, Engine.class);
     }
 
@@ -36,13 +44,18 @@ public class EngineRepository {
         return engine;
     }
 
-    public void update(Engine engine) {
-        crudRepository.run(session -> session.update(engine));
+    public boolean update(Engine engine) {
+        int updatedCnt = crudRepository.executeUpdate(UPDATE_QUERY,
+                Map.of("fName", engine.getName(),
+                        "fId", engine.getId())
+        );
+        return updatedCnt > 0;
     }
 
-    public void delete(int id) {
-        crudRepository.run(DELETE_QUERY,
+    public boolean delete(int id) {
+        int deletedCnt = crudRepository.executeUpdate(DELETE_QUERY,
                 Map.of("fId", id));
+        return deletedCnt > 0;
     }
 }
 
