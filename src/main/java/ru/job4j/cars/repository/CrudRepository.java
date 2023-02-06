@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,12 +56,18 @@ public class CrudRepository {
 
     public <T> Optional<T> optional(String query, Class<T> cl, Map<String, Object> args) {
         Function<Session, Optional<T>> command = session -> {
+            Optional<T> result;
             var sq = session
                     .createQuery(query, cl);
-            for (Map.Entry<String, Object> arg : args.entrySet()) {
-                sq.setParameter(arg.getKey(), arg.getValue());
+            try {
+                for (Map.Entry<String, Object> arg : args.entrySet()) {
+                    sq.setParameter(arg.getKey(), arg.getValue());
+                }
+                result = Optional.ofNullable(sq.getSingleResult());
+            } catch (NoResultException e) {
+                result = Optional.empty();
             }
-            return Optional.ofNullable(sq.getSingleResult());
+            return result;
         };
         return tx(command);
     }

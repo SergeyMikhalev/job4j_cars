@@ -1,13 +1,8 @@
 package ru.job4j.cars.repository;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.job4j.cars.model.Engine;
 
@@ -18,19 +13,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static ru.job4j.cars.repository.HbmRepositoryInitializer.getCrudRepository;
+import static ru.job4j.cars.repository.HbmRepositoryInitializer.setEntityName;
 
 public class EngineRepositoryTest {
-    private static final StandardServiceRegistry REGISTRY = new StandardServiceRegistryBuilder().configure().build();
-    private static final SessionFactory SF = new MetadataSources(REGISTRY).buildMetadata().buildSessionFactory();
-    private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SF);
-
+    /*    private static final StandardServiceRegistry REGISTRY = new StandardServiceRegistryBuilder().configure().build();
+        private static final SessionFactory SF = new MetadataSources(REGISTRY).buildMetadata().buildSessionFactory();
+        private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SF);
+        public static final String CLEAR_DB = "delete from Engine";
+    */
     @After
     public void clearDB() {
-        Session session = SF.openSession();
+        HbmRepositoryInitializer.clear();
+  /*      Session session = SF.openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.createQuery("delete from Engine").executeUpdate();
+            session.createQuery(CLEAR_DB).executeUpdate();
             tx.commit();
         } catch (Exception e) {
             if (tx != null) {
@@ -38,18 +37,24 @@ public class EngineRepositoryTest {
             }
         } finally {
             session.close();
-        }
+        } */
+    }
+
+    @BeforeClass
+    public static void init() {
+        setEntityName("Engine");
     }
 
     @AfterClass
     public static void destroy() {
-        StandardServiceRegistryBuilder.destroy(REGISTRY);
+        HbmRepositoryInitializer.destroy();
+        /* StandardServiceRegistryBuilder.destroy(REGISTRY); */
     }
 
 
     @Test
     public void whenAddAndThenFind() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine = new Engine();
         engine.setName("Engine1");
         repository.save(engine);
@@ -60,7 +65,7 @@ public class EngineRepositoryTest {
 
     @Test
     public void whenFindByIdNonExisting() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine = new Engine();
         engine.setName("Engine1");
         repository.save(engine);
@@ -70,7 +75,7 @@ public class EngineRepositoryTest {
 
     @Test
     public void whenUpdateExisting() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine = new Engine();
         engine.setName("Engine1");
         repository.save(engine);
@@ -88,7 +93,7 @@ public class EngineRepositoryTest {
 
     @Test
     public void whenUpdateNonExisting() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine = new Engine();
         engine.setName("Engine1");
         repository.save(engine);
@@ -103,14 +108,14 @@ public class EngineRepositoryTest {
 
     @Test
     public void whenFindAllOnEmpty() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         List<Engine> engines = repository.findAll();
         assertThat(engines.size(), is(0));
     }
 
     @Test
     public void whenFindAllWithResult() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine1 = new Engine();
         engine1.setName("Engine1");
         repository.save(engine1);
@@ -126,7 +131,7 @@ public class EngineRepositoryTest {
 
     @Test
     public void whenDeleteExisting() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine = new Engine();
         engine.setName("Engine1");
         repository.save(engine);
@@ -141,7 +146,7 @@ public class EngineRepositoryTest {
 
     @Test
     public void whenDeleteNotExisting() {
-        EngineRepository repository = new EngineRepository(CRUD_REPOSITORY);
+        EngineRepository repository = new EngineRepository(getCrudRepository());
         Engine engine = new Engine();
         engine.setName("Engine1");
         repository.save(engine);

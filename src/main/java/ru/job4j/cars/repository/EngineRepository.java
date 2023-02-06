@@ -3,7 +3,6 @@ package ru.job4j.cars.repository;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Engine;
 
-import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,17 +21,11 @@ public class EngineRepository {
     }
 
     public Optional<Engine> findById(int id) {
-        Optional<Engine> result;
-        try {
-            result = crudRepository.optional(
-                    FIND_BY_ID,
-                    Engine.class,
-                    Map.of("fId", id)
-            );
-        } catch (NoResultException e) {
-            result = Optional.empty();
-        }
-        return result;
+        return crudRepository.optional(
+                FIND_BY_ID,
+                Engine.class,
+                Map.of("fId", id)
+        );
     }
 
     public List<Engine> findAll() {
