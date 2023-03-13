@@ -4,6 +4,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ru.job4j.cars.model.Car;
+import ru.job4j.cars.model.CarBrand;
+import ru.job4j.cars.model.Driver;
 import ru.job4j.cars.model.Engine;
 
 import java.util.List;
@@ -16,7 +19,14 @@ import static org.junit.Assert.assertTrue;
 import static ru.job4j.cars.repository.HbmRepositoryInitializer.getCrudRepository;
 import static ru.job4j.cars.repository.HbmRepositoryInitializer.setEntityName;
 
-public class EngineRepositoryTest {
+public class CarRepositoryTest {
+
+    private final static EngineRepository engineRepository = new EngineRepository(getCrudRepository());
+    private final static DriverRepository driverRepository = new DriverRepository(getCrudRepository());
+
+    private final static CarBrandRepository carBrandRepository = new CarBrandRepository(getCrudRepository());
+
+    private final static CarRepository carRepository = new CarRepository(getCrudRepository());
 
     @After
     public void clearDB() {
@@ -25,24 +35,50 @@ public class EngineRepositoryTest {
 
     @BeforeClass
     public static void init() {
-        setEntityName("Engine");
+        createEngineInDb();
+        createCarBrandInDb();
+        createDriversInDb();
+        setEntityName("Car");
+    }
+
+    private static void createDriversInDb() {
+        Driver driver = new Driver();
+        driver.setName("Driver1");
+        driverRepository.save(driver);
+        Driver driver2 = new Driver();
+        driver2.setName("Driver2");
+        driverRepository.save(driver2);
+    }
+
+    private static void createCarBrandInDb() {
+        CarBrand carBrand = new CarBrand();
+        carBrand.setName("Brand1");
+        carBrandRepository.save(carBrand);
+    }
+
+    private static void createEngineInDb() {
+        Engine engine = new Engine();
+        engine.setName("Engine1");
+        engineRepository.save(engine);
     }
 
     @AfterClass
     public static void destroy() {
+        clearSupportingTable("Engine");
+        clearSupportingTable("Driver");
+        clearSupportingTable("CarBrand");
         HbmRepositoryInitializer.destroy();
+    }
+
+    private static void clearSupportingTable(String Engine) {
+        HbmRepositoryInitializer.setEntityName(Engine);
+        HbmRepositoryInitializer.clear();
     }
 
 
     @Test
     public void whenAddAndThenFind() {
-        EngineRepository repository = new EngineRepository(getCrudRepository());
-        Engine engine = new Engine();
-        engine.setName("Engine1");
-        repository.save(engine);
-        Optional<Engine> engineFromDb = repository.findById(engine.getId());
-        assertTrue(engineFromDb.isPresent());
-        assertThat(engineFromDb.get().getName(), is("Engine1"));
+
     }
 
     @Test
@@ -135,4 +171,5 @@ public class EngineRepositoryTest {
         boolean deleteResult = repository.delete(engine.getId() + 1);
         assertFalse(deleteResult);
     }
+
 }

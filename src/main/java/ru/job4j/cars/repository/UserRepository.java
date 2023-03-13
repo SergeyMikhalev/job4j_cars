@@ -36,7 +36,7 @@ public class UserRepository {
      * @param user пользователь.
      */
     public void update(User user) {
-        crudRepository.run(session -> session.merge(user));
+        crudRepository.run(session -> session.update(user));
     }
 
     /**

@@ -16,7 +16,6 @@ public class HbmRepositoryInitializer {
 
 
     public static void clear() {
-        /*CRUD_REPOSITORY.run(session->session.createQuery(CLEAR_DB + entityName).executeUpdate());*/
         Session session = SF.openSession();
         Transaction tx = null;
         try {
